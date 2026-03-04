@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
+        #btn-start { 
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
+            z-index: 1000; padding: 15px 35px; background: #2196F3; color: white; 
+            border: none; border-radius: 50px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+        /* Oculta la interfaz de carga de MindAR para un look más limpio */
+        .mindar-ui-overlay, .mindar-ui-loading, .mindar-ui-scanning { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <button id="btn-start">INICIAR EXPERIENCIA</button>
+
+    <a-scene 
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; filterMinCF:0.0001; filterBeta: 0.001;" 
+        color-space="sRGB" 
+        renderer="colorManagement: true, physicallyCorrectLights: true, antialias: true, precision: high;" 
+        vr-mode-ui="enabled: false" 
+        device-orientation-permission-ui="enabled: false">
+        
+        <a-assets>
+            <a-asset-item id="modelo3D" src="./modelo.glb"></a-asset-item>
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: true"></a-camera>
+
+        <a-entity id="paint-target" mindar-image-target="targetIndex: 0">
+            <a-gltf-model 
+                id="objeto-ar" 
+                src="#modelo3D" 
+                scale="1.09 1.09 1.09" 
+                position="0 -0.5 0" 
+                visible="false">
+            </a-gltf-model>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        const btn = document.getElementById('btn-start');
+        const sceneEl = document.querySelector('a-scene');
+        const targetEl = document.getElementById('paint-target');
+        const modelo = document.getElementById('objeto-ar');
+        
+        let fueDetectado = false;
+
+        btn.addEventListener('click', () => {
+            sceneEl.systems["mindar-image-system"].start();
+            btn.style.display = 'none';
+        });
+
+        // Lógica de detección: El modelo aparece al reconocer el cuadro
+        targetEl.addEventListener("targetFound", () => { 
+            fueDetectado = true;
+            modelo.setAttribute("visible", "true"); 
+            console.log("¡Modelo fijado!");
+        });
+
+        // Forzar visibilidad permanente (Persistencia total)
+        targetEl.addEventListener("targetLost", () => { 
+            if (fueDetectado) { modelo.setAttribute("visible", "true"); }
+        });
+
+        // Refuerzo para evitar parpadeos o desapariciones accidentales
+        sceneEl.addEventListener('tick', () => {
+            if (fueDetectado && !modelo.getAttribute('visible')) {
+                modelo.setAttribute('visible', true);
+            }
+        });
+    </script>
+</body>
+</html>
