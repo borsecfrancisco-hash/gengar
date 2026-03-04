@@ -12,7 +12,6 @@
             border: none; border-radius: 50px; font-weight: bold; cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
-        /* Oculta la interfaz de carga de MindAR para un look más limpio */
         .mindar-ui-overlay, .mindar-ui-loading, .mindar-ui-scanning { display: none !important; }
     </style>
 </head>
@@ -37,7 +36,7 @@
             <a-gltf-model 
                 id="objeto-ar" 
                 src="#modelo3D" 
-                scale="1.09 1.09 1.09" 
+                scale="3.27 3.27 3.27" 
                 position="0 -0.5 0" 
                 visible="false">
             </a-gltf-model>
@@ -57,19 +56,15 @@
             btn.style.display = 'none';
         });
 
-        // Lógica de detección: El modelo aparece al reconocer el cuadro
         targetEl.addEventListener("targetFound", () => { 
             fueDetectado = true;
             modelo.setAttribute("visible", "true"); 
-            console.log("¡Modelo fijado!");
         });
 
-        // Forzar visibilidad permanente (Persistencia total)
         targetEl.addEventListener("targetLost", () => { 
             if (fueDetectado) { modelo.setAttribute("visible", "true"); }
         });
 
-        // Refuerzo para evitar parpadeos o desapariciones accidentales
         sceneEl.addEventListener('tick', () => {
             if (fueDetectado && !modelo.getAttribute('visible')) {
                 modelo.setAttribute('visible', true);
