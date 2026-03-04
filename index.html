@@ -12,17 +12,18 @@
             border: none; border-radius: 50px; font-weight: bold; cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
+        /* Oculta los overlays de carga azules de MindAR */
         .mindar-ui-overlay, .mindar-ui-loading, .mindar-ui-scanning { display: none !important; }
     </style>
 </head>
 <body>
 
-    <button id="btn-start">INICIAR EXPERIENCIA</button>
+    <button id="btn-start">INICIAR EXPERIENCIA HD</button>
 
     <a-scene 
         mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; filterMinCF:0.0001; filterBeta: 0.001;" 
         color-space="sRGB" 
-        renderer="colorManagement: true, physicallyCorrectLights: true, antialias: true, precision: high;" 
+        renderer="colorManagement: true; physicallyCorrectLights: true; antialias: true; precision: high; highprecision: true; devicePixelRatio: auto; logarithmicDepthBuffer: true;" 
         vr-mode-ui="enabled: false" 
         device-orientation-permission-ui="enabled: false">
         
@@ -36,7 +37,7 @@
             <a-gltf-model 
                 id="objeto-ar" 
                 src="#modelo3D" 
-                scale="3.27 3.27 3.27" 
+                scale="5 5 5" 
                 position="0 -0.5 0" 
                 visible="false">
             </a-gltf-model>
@@ -52,19 +53,24 @@
         let fueDetectado = false;
 
         btn.addEventListener('click', () => {
+            // Iniciamos el sistema MindAR
             sceneEl.systems["mindar-image-system"].start();
             btn.style.display = 'none';
         });
 
+        // Lógica de detección: El modelo aparece y se queda fijo
         targetEl.addEventListener("targetFound", () => { 
             fueDetectado = true;
             modelo.setAttribute("visible", "true"); 
+            console.log("Modelo HD cargado.");
         });
 
+        // Forzar visibilidad permanente (Persistencia total)
         targetEl.addEventListener("targetLost", () => { 
             if (fueDetectado) { modelo.setAttribute("visible", "true"); }
         });
 
+        // Refuerzo para evitar parpadeos o desapariciones accidentales en cada frame
         sceneEl.addEventListener('tick', () => {
             if (fueDetectado && !modelo.getAttribute('visible')) {
                 modelo.setAttribute('visible', true);
