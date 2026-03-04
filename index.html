@@ -5,23 +5,22 @@
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
+        body { margin: 0; overflow: hidden; background: #000; }
         #btn-start { 
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            z-index: 1000; padding: 18px 40px; background: #007bff; color: white; 
-            border: none; border-radius: 50px; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); font-size: 16px;
+            z-index: 1000; padding: 20px 40px; background: #007bff; color: white; 
+            border: none; border-radius: 10px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.6); font-size: 18px;
         }
-        /* Ocultar interfaz de MindAR */
         .mindar-ui-overlay, .mindar-ui-loading, .mindar-ui-scanning { display: none !important; }
     </style>
 </head>
 <body>
 
-    <button id="btn-start">INICIAR CÁMARA HD</button>
+    <button id="btn-start">INICIAR AR (CENTRO TOTAL)</button>
 
     <a-scene 
-        mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; warmupTolerance: 1; missTolerance: 100; filterMinCF:0.0001; filterBeta: 0.001;" 
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; warmupTolerance: 5; missTolerance: 10000;" 
         color-space="sRGB" 
         renderer="colorManagement: true; physicallyCorrectLights: true; antialias: true; precision: high; logarithmicDepthBuffer: true; devicePixelRatio: auto;" 
         vr-mode-ui="enabled: false" 
@@ -38,7 +37,7 @@
                 id="objeto-ar" 
                 src="#modelo3D" 
                 scale="5 5 5" 
-                position="0 -0.5 0" 
+                position="0 0 0" 
                 visible="false">
             </a-gltf-model>
         </a-entity>
@@ -49,11 +48,9 @@
         const sceneEl = document.querySelector('a-scene');
         const targetEl = document.getElementById('paint-target');
         const modelo = document.getElementById('objeto-ar');
-        
         let fueDetectado = false;
 
         btn.addEventListener('click', () => {
-            // Iniciamos MindAR
             sceneEl.systems["mindar-image-system"].start();
             btn.style.display = 'none';
         });
@@ -61,10 +58,9 @@
         targetEl.addEventListener("targetFound", () => { 
             fueDetectado = true;
             modelo.setAttribute("visible", "true"); 
-            console.log("¡Detectado en móvil!");
+            console.log("¡Centro detectado!");
         });
 
-        // Persistencia para que no desaparezca en móviles
         targetEl.addEventListener("targetLost", () => { 
             if (fueDetectado) { modelo.setAttribute("visible", "true"); }
         });
