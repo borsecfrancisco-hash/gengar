@@ -1,29 +1,29 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     <style>
         body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
         #btn-start { 
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            z-index: 1000; padding: 15px 35px; background: #2196F3; color: white; 
+            z-index: 1000; padding: 18px 40px; background: #007bff; color: white; 
             border: none; border-radius: 50px; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); font-size: 16px;
         }
-        /* Oculta los overlays de carga azules de MindAR */
+        /* Ocultar interfaz de MindAR */
         .mindar-ui-overlay, .mindar-ui-loading, .mindar-ui-scanning { display: none !important; }
     </style>
 </head>
 <body>
 
-    <button id="btn-start">INICIAR EXPERIENCIA HD</button>
+    <button id="btn-start">INICIAR CÁMARA HD</button>
 
     <a-scene 
-        mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; filterMinCF:0.0001; filterBeta: 0.001;" 
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; warmupTolerance: 1; missTolerance: 100; filterMinCF:0.0001; filterBeta: 0.001;" 
         color-space="sRGB" 
-        renderer="colorManagement: true; physicallyCorrectLights: true; antialias: true; precision: high; highprecision: true; devicePixelRatio: auto; logarithmicDepthBuffer: true;" 
+        renderer="colorManagement: true; physicallyCorrectLights: true; antialias: true; precision: high; logarithmicDepthBuffer: true; devicePixelRatio: auto;" 
         vr-mode-ui="enabled: false" 
         device-orientation-permission-ui="enabled: false">
         
@@ -53,24 +53,22 @@
         let fueDetectado = false;
 
         btn.addEventListener('click', () => {
-            // Iniciamos el sistema MindAR
+            // Iniciamos MindAR
             sceneEl.systems["mindar-image-system"].start();
             btn.style.display = 'none';
         });
 
-        // Lógica de detección: El modelo aparece y se queda fijo
         targetEl.addEventListener("targetFound", () => { 
             fueDetectado = true;
             modelo.setAttribute("visible", "true"); 
-            console.log("Modelo HD cargado.");
+            console.log("¡Detectado en móvil!");
         });
 
-        // Forzar visibilidad permanente (Persistencia total)
+        // Persistencia para que no desaparezca en móviles
         targetEl.addEventListener("targetLost", () => { 
             if (fueDetectado) { modelo.setAttribute("visible", "true"); }
         });
 
-        // Refuerzo para evitar parpadeos o desapariciones accidentales en cada frame
         sceneEl.addEventListener('tick', () => {
             if (fueDetectado && !modelo.getAttribute('visible')) {
                 modelo.setAttribute('visible', true);
